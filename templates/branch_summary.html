@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Branch Transaction Summary - Banking System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="text-white mb-4">
+            <i class="fas fa-building"></i> Branch Transaction Summary
+        </h2>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-chart-line"></i> Database View: branch_transaction_summary
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Branch ID</th>
+                        <th>Branch Name</th>
+                        <th>Branch Code</th>
+                        <th>Total Transactions</th>
+                        <th>Transfer Volume</th>
+                        <th>Total Deposits</th>
+                        <th>Total Withdrawals</th>
+                        <th>Total Accounts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for branch in branches %}
+                    <tr>
+                        <td><strong>#{{ branch.branch_id }}</strong></td>
+                        <td>{{ branch.branch_name }}</td>
+                        <td><span class="badge bg-primary">{{ branch.branch_code }}</span></td>
+                        <td><span class="badge bg-info">{{ branch.total_transactions }}</span></td>
+                        <td class="text-success fw-bold">${{ "%.2f"|format(branch.total_transfer_volume) }}</td>
+                        <td class="text-primary">${{ "%.2f"|format(branch.total_deposits) }}</td>
+                        <td class="text-danger">${{ "%.2f"|format(branch.total_withdrawals) }}</td>
+                        <td><span class="badge bg-secondary">{{ branch.total_accounts }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

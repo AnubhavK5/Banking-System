@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Transfer Funds - Banking System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-exchange-alt"></i> Transfer Funds</h4>
+            </div>
+            <div class="card-body p-4">
+                {% if accounts %}
+                <form method="POST" action="{{ url_for('transfer') }}" id="transferForm">
+                    <div class="mb-3">
+                        <label for="sender_account_id" class="form-label">From Account *</label>
+                        <select class="form-select" id="sender_account_id" name="sender_account_id" required>
+                            <option value="">Select your account...</option>
+                            {% for account in accounts %}
+                            <option value="{{ account.account_id }}" data-balance="{{ account.balance }}">
+                                {{ account.account_number }} - {{ account.account_type }} 
+                                (Balance: ${{ "%.2f"|format(account.balance) }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="receiver_account_number" class="form-label">To Account Number *</label>
+                        <input type="text" class="form-control" id="receiver_account_number" 
+                               name="receiver_account_number" placeholder="Enter receiver's account number" required>
+                        <div id="accountInfo" class="mt-2"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount ($) *</label>
+                        <input type="number" class="form-control" id="amount" name="amount" 
+                               step="0.01" min="0.01" placeholder="0.00" required>
+                        <small class="text-muted">Available balance will be shown when you select an account</small>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Note:</strong> All transfers are processed through secure stored procedures 
+                        with automatic rollback on failure.
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-paper-plane"></i> Transfer Now
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    You don't have any active accounts. Please contact your branch to open an account.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('receiver_account_number')?.addEventListener('blur', function() {
+    const accountNumber = this.value;
+    if (accountNumber) {
+        fetch(`/api/account/${accountNumber}`)
+            .then(response => response.json())
+            .then(data => {
+                const infoDiv = document.getElementById('accountInfo');
+                if (data.success) {
+                    infoDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>✓ Account Found:</strong><br>
+                            ${data.account.customer_name} - ${data.account.account_type}<br>
+                            Branch: ${data.account.branch}
+                        </div>
+                    `;
+                } else {
+                    infoDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>✗ Account not found</strong>
+                        </div>
+                    `;
+                }
+            });
+    }
+});
+</script>
+{% endblock %}

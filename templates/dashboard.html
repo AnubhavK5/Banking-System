@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Banking System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="text-white mb-4">
+            <i class="fas fa-tachometer-alt"></i> Welcome, {{ current_user.first_name }}!
+        </h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <i class="fas fa-wallet text-primary"></i>
+            <h3>{{ accounts|length }}</h3>
+            <p>Total Accounts</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <i class="fas fa-dollar-sign text-success"></i>
+            <h3>${{ "%.2f"|format(total_balance) }}</h3>
+            <p>Total Balance</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <i class="fas fa-exchange-alt text-info"></i>
+            <h3>{{ transactions|length }}</h3>
+            <p>Recent Transactions</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-wallet"></i> Your Accounts
+            </div>
+            <div class="card-body">
+                {% if accounts %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Account Number</th>
+                                <th>Type</th>
+                                <th>Balance</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in accounts %}
+                            <tr>
+                                <td><strong>{{ account.account_number }}</strong></td>
+                                <td>{{ account.account_type }}</td>
+                                <td><span class="text-success fw-bold">${{ "%.2f"|format(account.balance) }}</span></td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if account.status == 'ACTIVE' else 'secondary' }}">
+                                        {{ account.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No accounts found. Contact your branch to open an account.</p>
+                {% endif %}
+                <a href="{{ url_for('accounts') }}" class="btn btn-primary mt-2">
+                    <i class="fas fa-eye"></i> View All Accounts
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bolt"></i> Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('transfer') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-exchange-alt"></i> Transfer Funds
+                    </a>
+                    <a href="{{ url_for('transactions') }}" class="btn btn-info btn-lg">
+                        <i class="fas fa-list"></i> View Transactions
+                    </a>
+                    <a href="{{ url_for('audit_logs') }}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-history"></i> Audit Logs
+                    </a>
+                    <a href="{{ url_for('simulate_failure') }}" class="btn btn-warning btn-lg">
+                        <i class="fas fa-bug"></i> Simulate Failure
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-clock"></i> Recent Transactions
+            </div>
+            <div class="card-body">
+                {% if transactions %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for txn in transactions %}
+                            <tr>
+                                <td>{{ txn.transaction_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ txn.transaction_type }}</span>
+                                </td>
+                                <td class="fw-bold">${{ "%.2f"|format(txn.amount) }}</td>
+                                <td>{{ txn.sender_account.account_number if txn.sender_account else 'N/A' }}</td>
+                                <td>{{ txn.receiver_account.account_number if txn.receiver_account else 'N/A' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if txn.status == 'COMPLETED' else 'warning' }}">
+                                        {{ txn.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No recent transactions.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}My Accounts - Banking System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="text-white mb-4">
+            <i class="fas fa-wallet"></i> My Accounts
+        </h2>
+    </div>
+</div>
+
+<div class="row">
+    {% for account in accounts %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-{{ 'success' if account.status == 'ACTIVE' else 'secondary' }} text-white">
+                <h5 class="mb-0">{{ account.account_type }}</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-muted">Account Number</h6>
+                <p class="h5">{{ account.account_number }}</p>
+                
+                <h6 class="text-muted mt-3">Current Balance</h6>
+                <p class="h3 text-success">${{ "%.2f"|format(account.balance) }}</p>
+                
+                <h6 class="text-muted mt-3">Branch</h6>
+                <p>{{ account.branch.branch_name }}</p>
+                
+                <h6 class="text-muted mt-3">Opened Date</h6>
+                <p>{{ account.opened_date.strftime('%B %d, %Y') }}</p>
+                
+                <h6 class="text-muted mt-3">Status</h6>
+                <p>
+                    <span class="badge bg-{{ 'success' if account.status == 'ACTIVE' else 'secondary' }}">
+                        {{ account.status }}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not accounts %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-wallet fa-4x text-muted mb-3"></i>
+        <h4>No Accounts Found</h4>
+        <p class="text-muted">Contact your branch to open a new account.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

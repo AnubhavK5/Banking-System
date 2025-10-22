@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Recovery Logs - Banking System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="text-white mb-4">
+            <i class="fas fa-exclamation-triangle"></i> Recovery Logs
+        </h2>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-warning text-dark">
+        <i class="fas fa-database"></i> Failed Operations Log (For Recovery Analysis)
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning">
+            <i class="fas fa-info-circle"></i> 
+            <strong>Recovery System:</strong> All failed transactions are logged here for analysis and potential recovery.
+            These records help maintain data integrity and audit failed operations.
+        </div>
+        {% if logs %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Recovery ID</th>
+                        <th>Operation</th>
+                        <th>From Account</th>
+                        <th>To Account</th>
+                        <th>Attempted Amount</th>
+                        <th>Balance at Failure</th>
+                        <th>Failure Reason</th>
+                        <th>Failed At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td><strong>#{{ log.recovery_id }}</strong></td>
+                        <td><span class="badge bg-danger">{{ log.operation_type }}</span></td>
+                        <td>{{ log.sender_account_id or 'N/A' }}</td>
+                        <td>{{ log.receiver_account_id or 'N/A' }}</td>
+                        <td class="fw-bold text-danger">${{ "%.2f"|format(log.attempted_amount) }}</td>
+                        <td>${{ "%.2f"|format(log.sender_balance_at_failure) if log.sender_balance_at_failure else 'N/A' }}</td>
+                        <td>
+                            <small class="text-danger">{{ log.failure_reason }}</small>
+                        </td>
+                        <td>{{ log.failed_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No recovery logs found. All transactions have been successful!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

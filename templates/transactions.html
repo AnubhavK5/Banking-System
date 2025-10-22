@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions - Banking System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="text-white mb-4">
+            <i class="fas fa-list"></i> Transaction History
+        </h2>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-history"></i> All Transactions
+    </div>
+    <div class="card-body">
+        {% if transactions %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date & Time</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>From Account</th>
+                        <th>To Account</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for txn in transactions %}
+                    <tr>
+                        <td><strong>#{{ txn.transaction_id }}</strong></td>
+                        <td>{{ txn.transaction_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'primary' if txn.transaction_type == 'TRANSFER' else 'info' }}">
+                                {{ txn.transaction_type }}
+                            </span>
+                        </td>
+                        <td class="fw-bold text-{{ 'danger' if txn.sender_account_id in [a.account_id for a in user_accounts] else 'success' }}">
+                            ${{ "%.2f"|format(txn.amount) }}
+                        </td>
+                        <td>{{ txn.sender_account.account_number if txn.sender_account else '-' }}</td>
+                        <td>{{ txn.receiver_account.account_number if txn.receiver_account else '-' }}</td>
+                        <td>{{ txn.description or '-' }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if txn.status == 'COMPLETED' else 'warning' }}">
+                                {{ txn.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No transactions found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}  
