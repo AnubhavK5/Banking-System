@@ -57,7 +57,7 @@ def signup():
                 return redirect(url_for('auth.signup'))
         
         # Create new customer
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        hashed_password = generate_password_hash(password)
         
         new_customer = Customer(
             email=email,

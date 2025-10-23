@@ -1,0 +1,89 @@
+erDiagram
+    BRANCHES ||--o{ CUSTOMERS : "manages"
+    BRANCHES ||--o{ EMPLOYEES : "employs"
+    BRANCHES ||--o{ ACCOUNTS : "hosts"
+    CUSTOMERS ||--o{ ACCOUNTS : "owns"
+    ACCOUNTS ||--o{ TRANSACTIONS : "sends/receives"
+    ACCOUNTS ||--o{ AUDIT_LOGS : "logged_in"
+    
+    BRANCHES {
+        int branch_id PK
+        string branch_name UK
+        string branch_code UK
+        text address
+        string phone
+        string manager_name
+        timestamp created_at
+    }
+    
+    CUSTOMERS {
+        int customer_id PK
+        string first_name
+        string last_name
+        string email UK
+        string password_hash
+        string phone
+        text address
+        date date_of_birth
+        int branch_id FK
+        boolean is_active
+        timestamp created_at
+    }
+    
+    EMPLOYEES {
+        int employee_id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        string position
+        numeric salary
+        date hire_date
+        int branch_id FK
+        boolean is_active
+        timestamp created_at
+    }
+    
+    ACCOUNTS {
+        int account_id PK
+        string account_number UK
+        string account_type
+        numeric balance "CHECK >= 0"
+        int customer_id FK
+        int branch_id FK
+        string status
+        date opened_date
+        timestamp created_at
+    }
+    
+    TRANSACTIONS {
+        int transaction_id PK
+        string transaction_type
+        numeric amount "CHECK > 0"
+        int sender_account_id FK
+        int receiver_account_id FK
+        timestamp transaction_date
+        text description
+        string status
+    }
+    
+    AUDIT_LOGS {
+        int log_id PK
+        int account_id FK
+        numeric old_balance
+        numeric new_balance
+        timestamp changed_at
+        string operation_type
+    }
+    
+    RECOVERY_LOGS {
+        int recovery_id PK
+        string operation_type
+        int sender_account_id
+        int receiver_account_id
+        numeric attempted_amount
+        text failure_reason
+        timestamp failed_at
+        numeric sender_balance_at_failure
+        jsonb additional_details
+    }

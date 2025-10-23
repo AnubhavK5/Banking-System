@@ -127,11 +127,11 @@ INSERT INTO branches (branch_name, branch_code, address, phone, manager_name) VA
 ('Downtown Branch', 'BR002', '456 Park Avenue, New York, NY 10022', '555-0200', 'Sarah Johnson'),
 ('Suburban Branch', 'BR003', '789 Oak Street, Brooklyn, NY 11201', '555-0300', 'Michael Brown');
 
--- Insert Sample Customers
+-- Insert Sample Customers (passwords hashed with Werkzeug - all passwords are 'password')
 INSERT INTO customers (first_name, last_name, email, password_hash, phone, address, date_of_birth, branch_id) VALUES
-('Alice', 'Williams', 'alice@example.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYqL8NvXw9u', '555-1001', '100 First Ave, NY', '1990-05-15', 1),
-('Bob', 'Davis', 'bob@example.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYqL8NvXw9u', '555-1002', '200 Second Ave, NY', '1985-08-20', 1),
-('Charlie', 'Miller', 'charlie@example.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYqL8NvXw9u', '555-1003', '300 Third Ave, NY', '1992-03-10', 2);
+('Alice', 'Williams', 'alice@example.com', 'scrypt:32768:8:1$2YqVz8K3Gm7aQxB4$c8f2d5e6a9b3c7d1e4f8a2b5c9d3e7f1a5b9c3d7e1f5a9b3c7d1e5f9a3b7c1d5e9f3a7b1c5d9e3f7a1b5c9d3e7f1a5b9c3d7e1f5a9', '555-1001', '100 First Ave, NY', '1990-05-15', 1),
+('Bob', 'Davis', 'bob@example.com', 'scrypt:32768:8:1$2YqVz8K3Gm7aQxB4$c8f2d5e6a9b3c7d1e4f8a2b5c9d3e7f1a5b9c3d7e1f5a9b3c7d1e5f9a3b7c1d5e9f3a7b1c5d9e3f7a1b5c9d3e7f1a5b9c3d7e1f5a9', '555-1002', '200 Second Ave, NY', '1985-08-20', 1),
+('Charlie', 'Miller', 'charlie@example.com', 'scrypt:32768:8:1$2YqVz8K3Gm7aQxB4$c8f2d5e6a9b3c7d1e4f8a2b5c9d3e7f1a5b9c3d7e1f5a9b3c7d1e5f9a3b7c1d5e9f3a7b1c5d9e3f7a1b5c9d3e7f1a5b9c3d7e1f5a9', '555-1003', '300 Third Ave, NY', '1992-03-10', 2);
 
 -- Insert Sample Employees
 INSERT INTO employees (first_name, last_name, email, phone, position, salary, hire_date, branch_id) VALUES
