@@ -41,9 +41,15 @@
                                 {{ txn.transaction_type }}
                             </span>
                         </td>
-                        <td class="fw-bold text-{{ 'danger' if txn.sender_account_id in [a.account_id for a in user_accounts] else 'success' }}">
+                       <td class="fw-bold">
+                        {% if txn.sender_account and txn.sender_account.customer_id == current_user.customer_id %}
+                            <span class="text-danger">-${{ "%.2f"|format(txn.amount) }}</span>
+                        {% elif txn.receiver_account and txn.receiver_account.customer_id == current_user.customer_id %}
+                            <span class="text-success">+${{ "%.2f"|format(txn.amount) }}</span>
+                        {% else %}
                             ${{ "%.2f"|format(txn.amount) }}
-                        </td>
+                        {% endif %}
+                    </td>
                         <td>{{ txn.sender_account.account_number if txn.sender_account else '-' }}</td>
                         <td>{{ txn.receiver_account.account_number if txn.receiver_account else '-' }}</td>
                         <td>{{ txn.description or '-' }}</td>

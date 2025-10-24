@@ -120,11 +120,34 @@ def transfer():
         except Exception as e:
             db.session.rollback()
             error_message = str(e)
+            
+            # Log the failure in recovery_logs
+            recovery_log = RecoveryLog(
+                operation_type='TRANSFER',
+                sender_account_id=sender_account_id,
+                receiver_account_id=receiver_account.account_id,
+                attempted_amount=amount,
+                failure_reason=error_message,
+                sender_balance_at_failure=sender_account.balance,
+                additional_details={
+                    'sender_account': sender_account.account_number,
+                    'receiver_account': receiver_account.account_number,
+                    'user_id': current_user.customer_id
+                }
+            )
+            
+            try:
+                db.session.add(recovery_log)
+                db.session.commit()
+            except:
+                db.session.rollback()
+            
             flash(f'Transfer failed: {error_message}', 'danger')
             return redirect(url_for('transfer'))
     
     return render_template('transfer.html', accounts=accounts)
 
+# Simulate failure route
 # Simulate failure route
 @app.route('/simulate_failure')
 @login_required
@@ -160,12 +183,35 @@ def simulate_failure():
         flash('Unexpected success - transfer should have failed!', 'warning')
     except Exception as e:
         db.session.rollback()
-        # Get the latest recovery log entry
-        latest_recovery = RecoveryLog.query.order_by(RecoveryLog.failed_at.desc()).first()
         
-        flash('✓ Failure simulation successful! The transaction was rolled back.', 'info')
-        flash(f'Error details: {str(e)}', 'warning')
-        flash(f'Check the Recovery Logs table to see the logged failure (Recovery ID: {latest_recovery.recovery_id if latest_recovery else "N/A"}).', 'info')
+        # Now manually create recovery log in NEW transaction
+        # This ensures it persists even though the transfer rolled back
+        recovery_log = RecoveryLog(
+            operation_type='TRANSFER',
+            sender_account_id=account.account_id,
+            receiver_account_id=receiver_account.account_id,
+            attempted_amount=excessive_amount,
+            failure_reason=f'Insufficient funds. Available: {account.balance}, Required: {excessive_amount}, Shortfall: {excessive_amount - float(account.balance)}',
+            sender_balance_at_failure=account.balance,
+            additional_details={
+                'sender_account': account.account_number,
+                'receiver_account': receiver_account.account_number,
+                'deficit_amount': float(excessive_amount - float(account.balance)),
+                'error_message': str(e)
+            }
+        )
+        
+        try:
+            db.session.add(recovery_log)
+            db.session.commit()
+            
+            flash('✓ Failure simulation successful! The transaction was rolled back.', 'success')
+            flash(f'Attempted to transfer ${excessive_amount:.2f} from account with balance ${account.balance:.2f}', 'info')
+            flash(f'Recovery log created with ID: {recovery_log.recovery_id}. Check the table below for details.', 'success')
+        except Exception as log_error:
+            db.session.rollback()
+            flash('✓ Transaction rolled back, but could not create recovery log.', 'warning')
+            flash(f'Logging error: {str(log_error)}', 'danger')
     
     return redirect(url_for('recovery_logs'))
 
